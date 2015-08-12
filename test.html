@@ -1,0 +1,121 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+<title>无标题文档</title>
+<script src="zepto.js"></script>
+<script>
+document.getElementsByTagName('html')[0].style.fontSize = document.documentElement.clientWidth/10 + 'px'
+</script>
+<style>
+/* 打包带走 */
+body { margin: 0; padding: 0; }
+img { vertical-align: top; }
+a { text-decoration: none; -webkit-tap-highlight-color:rgba(0,0,0,0); }
+#slide { height: 6rem; width: 100%; position: relative; overflow: hidden; }
+#slide nav { height: 6rem; width: 50rem; position: absolute; left: 0; right: 0; }
+#slide a { float: left; display: block; }
+#slide img { width: 10rem; height: 6rem; }
+#slide div { width: 100%; position: absolute; left: 0; bottom: 0; text-align: center; }
+#slide span { width: 0.3rem; height: 0.3rem; border: 1px solid silver; border-radius: 999px; margin: 0 0.1rem; display: inline-block; }
+#slide span.active { background-color: orange; }
+/* 打包带走 */
+</style>
+<script>
+/* 打包带走 */
+$(function(){
+	var iNow7 = 0
+	var timer7
+	var size7 = $('#slide a').size()
+	var clientW = document.documentElement.clientWidth
+	$('#slide nav').css('-webkit-transition','1s')//行间设置过渡，以便js清除
+
+	autoP()
+	function autoP() {//自动无缝轮播
+		timer7 = setInterval(function(){
+			if (iNow7 == size7-1) {
+				$('#slide a').eq(0).css('position','relative').css('left',size7*10+'rem')//将第一幅图定位到最后
+				setTimeout(function(){//动画一结束就赶紧取消定位，left复0
+					$('#slide nav').css('-webkit-transition','').css('left',0);//清除过渡，以便迅速拉回,同时拉回
+					$('#slide a').eq(0).css('position','')//取消第一幅图的定位
+					setTimeout(function(){
+						$('#slide nav').css('-webkit-transition','1s')
+						iNow7 = 0
+					},50)//恢复过渡,由于拉回需要渲染时间，所以恢复动画只能延迟
+				},1050)
+			}
+			$('#slide nav').css('left',-(iNow7+1)*10+'rem')
+			$('#slide span').attr('class','')//干空全部
+			iNow7 == size7-1?$('#slide span').eq(0).attr('class','active'):$('#slide span').eq(iNow7+1).attr('class','active')//当前span变色 这个可以用%啊，傻逼
+			iNow7++
+		},4000)
+	}
+
+	$('#slide nav').on('touchstart',function(ev){//拖拽事件
+		if (iNow7 == 2) {
+			$('#slide a').eq(0).css('position','')//取消第一幅图的定位
+		}
+		clearInterval(timer7)
+		$(this).css('-webkit-transition','')//清除过渡，拖拽实时起效
+		var posX = ev.changedTouches[0].clientX
+		var l = posX - $(this).position().left
+		var L
+		$(this).on('touchmove',function(ev){
+			L = ev.changedTouches[0].clientX 
+			$(this).css('left',L-l)//拖拽
+			ev.preventDefault()//防止某些手机拖拽无效
+		})
+		$(this).on('touchend',function(){//拖动结束，设置切换
+			$(this).off('touchmove').off('touchend').css('-webkit-transition','0.2s')/*拖拽结束干空事件，同时给拖拽轮播设定过渡时间，由于已经有拖拽，所以距离短，时间也就设短点*/
+
+			if ((L-posX)/clientW>0.3) {//只有拖拽幅度大于0.3时才轮播，避免误触
+				iNow7--
+			} else if ((posX-L)/clientW>0.3) {
+				iNow7++
+			}
+
+			if (iNow7 == -1 && L>posX) {//当到了两边且向外托时时，修正回应当位置
+				iNow7 = 0
+			} else if (iNow7 == size7 && L<posX) {
+				iNow7 = size7-1
+			}
+
+			$('#slide span').attr('class','')//干空全部
+			$('#slide span').eq(iNow7).attr('class','active')//当前span变色
+			$(this).css('left',-(iNow7)*10+'rem');//感知拖拽自动轮播
+			setTimeout(function(){
+				$('#slide nav').css('-webkit-transition','1s')//恢复到1s的轮播过渡
+			},20)
+			autoP()
+		})
+	})
+})
+/* 打包带走 */
+</script>
+</head>
+<body>
+	<!-- 打包带走 -->
+	<section id="slide">
+		<nav>
+			<a href="http://www.baidu.com"><img src="video/1.jpg"></a>
+			<a href="http://www.baidu.com"><img src="video/2.jpg"></a>
+			<a href="http://www.baidu.com"><img src="video/3.jpg"></a>
+			<a href="http://www.baidu.com"><img src="video/4.jpg"></a>
+			<a href="http://www.baidu.com"><img src="video/5.jpg"></a>
+		</nav>
+		<div>
+			<span class="active"></span>
+			<span></span>
+			<span></span>
+			<span></span>
+			<span></span>
+		</div>
+	</section>
+	<!-- 打包带走 -->
+</body>
+</html>
+
+
+
+
